@@ -1,5 +1,6 @@
 # Visual Studio Code
 /client/.vscode/*
+/server/.vscode/*
 
 # Local History for Visual Studio Code
 .history/
@@ -9,3 +10,4 @@
 
 # executable files
 /client/client
+/server/server
