@@ -4,8 +4,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-class Socket
-{
+class Socket {
 public:
     // methods for socket
     Socket(int port_number) : port(port_number), opt(1){ addrlen = sizeof(sockaddr_in);};

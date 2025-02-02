@@ -5,5 +5,13 @@ project(networking)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-add_executable(networking_server server/main.cpp)
-add_executable(networking_client client/main.cpp)
+function(collect_sources dir output)
+    file(GLOB_RECURSE files ${dir}/*.cpp)
+    set(${output} ${files} PARENT_SCOPE)
+endfunction()
+
+collect_sources("server" SERVER_SOURCES)
+collect_sources("client" CLIENT_SOURCES)
+
+add_executable(server ${SERVER_SOURCES})
+add_executable(client ${CLIENT_SOURCES})
