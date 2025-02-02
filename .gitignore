@@ -2,6 +2,9 @@
 /client/.vscode/*
 /server/.vscode/*
 
+# build
+/build/*
+
 # Local History for Visual Studio Code
 .history/
 
