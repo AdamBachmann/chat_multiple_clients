@@ -3,6 +3,7 @@
 #include <thread>
 
 #include "socket.hpp"
+#include "manager.hpp"
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
@@ -19,17 +20,22 @@ void handleReceive(int socket) {
 }
 
 int main() {
-    Socket s(PORT);
-    s.create_socket();
-    s.socket_options();
-    s.bind_socket();
-    s.listen_socket();
-    std::cout << "Serwer nasłuchuje na porcie " << PORT << "..." << std::endl;
-    s.accept_socket();
+    Manager m(PORT);
+    int number_of_clients = m.get_clients().size();
+    for(int i = 0; i < number_of_clients; i++) {
+        auto client = *m.get_clients().at(i);
+        
+        if(client.get_status() == 0) {
+            client.accept_socket();
+        }
+        else {
+            std::cout << "Socket status = " << client.get_status() << std::endl;
+        }
+    }
 
-    std::cout << "Połączenie przyjęte." << std::endl;
-
-    std::thread receiveThread(handleReceive, s.get_new_socket());
+    for(int i = 0; i < number_of_clients; i++) {
+        std::thread receiveThread(handleReceive, m.get_clients().at(i)->get_new_socket());
+    }
 
     while (true) {
         std::string message;
