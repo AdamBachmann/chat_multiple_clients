@@ -20,33 +20,16 @@ void handleReceive(int socket) {
 }
 
 int main() {
-    Manager m(PORT);
-    int number_of_clients = m.get_clients().size();
-    for(int i = 0; i < number_of_clients; i++) {
-        auto client = *m.get_clients().at(i);
-        
-        if(client.get_status() == 0) {
-            client.accept_socket();
-        }
-        else {
-            std::cout << "Socket status = " << client.get_status() << std::endl;
-        }
-    }
+    Manager manager;
+    manager.add_new_client(PORT);
+    std::thread receiveThread(handleReceive, manager.get_clients().at(0)->get_new_socket());
 
-    for(int i = 0; i < number_of_clients; i++) {
-        std::thread receiveThread(handleReceive, m.get_clients().at(i)->get_new_socket());
-    }
-
-    while (true) {
-        std::string message;
-        std::cout << "Serwer: ";
-        std::getline(std::cin, message);
-        send(s.get_new_socket(), message.c_str(), message.length(), 0);
+    while(true){
+        manager.check_new_client();
     }
 
     receiveThread.join();
-    close(s.get_new_socket());
-    close(s.get_server_fd());
+    manager.close_sockets();
 
     return 0;
 }

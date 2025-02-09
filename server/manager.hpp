@@ -1,3 +1,6 @@
+#ifndef __MANAGER_HPP__
+#define __MANAGER_HPP__
+
 #include <iostream>
 #include <string>
 #include <netinet/in.h>
@@ -9,11 +12,14 @@
 
 class Manager{
 public:
-    Manager(int port) : current_port(port) { add_new_client(); };
-    int add_new_client();
-    int get_port(){ return current_port; };
-    std::vector<std::unique_ptr<Socket>> get_clients() { return clients; };
+    void add_new_client(int port);
+    void check_new_client();
+    void close_sockets();
+
+    //getters and setters
+    std::vector<std::unique_ptr<Socket>>& get_clients() { return clients; };
 private:
-    int current_port;
     std::vector<std::unique_ptr<Socket>> clients;
 };
+
+#endif
