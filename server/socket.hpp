@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <thread>
 
 enum STATUS{
     NO_ERROR,
@@ -40,6 +41,8 @@ public:
     int get_new_socket() { return new_socket; };
     int get_server_fd() { return server_fd; };
     int get_status() { return status; };
+    std::thread& get_receive_thread() { return receive_thread; };
+    void set_receive_thread( std::thread& thread){ receive_thread = std::move(thread); };
 
 private:
     STATUS status;
@@ -49,6 +52,8 @@ private:
     struct sockaddr_in address;
     int opt;
     int addrlen;
+
+    std::thread receive_thread;
 };
 
 #endif

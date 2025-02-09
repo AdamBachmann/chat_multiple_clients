@@ -19,7 +19,7 @@ void handleReceive(int sock) {
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     int sock = 0;
     struct sockaddr_in serv_addr;
 
@@ -30,7 +30,7 @@ int main() {
     }
 
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    serv_addr.sin_port = htons(atoi(argv[1]));
 
     // Konwersja adresu IP serwera
     if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
