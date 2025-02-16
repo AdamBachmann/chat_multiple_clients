@@ -43,6 +43,8 @@ public:
     int get_status() { return status; };
     std::thread& get_receive_thread() { return receive_thread; };
     void set_receive_thread( std::thread& thread){ receive_thread = std::move(thread); };
+    int get_received_messages_counter(){ return received_messages_counter; };
+    void set_received_messages_counter(int value){ received_messages_counter = value; };
 
 private:
     STATUS status;
@@ -54,6 +56,7 @@ private:
     int addrlen;
 
     std::thread receive_thread;
+    int received_messages_counter;
 };
 
 #endif

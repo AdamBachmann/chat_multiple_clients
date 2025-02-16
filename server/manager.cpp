@@ -6,27 +6,21 @@ Manager::Manager(int port) : current_port(port)
 }
 
 void Manager::add_new_client(){
-    std::cout << "Port: " << current_port << std::endl;
-    std::unique_ptr<Socket> client = std::make_unique<Socket>(current_port);
+    std::shared_ptr<Socket> client = std::make_shared<Socket>(current_port);
     client->create_socket();
-    print_client_status(client);
     client->socket_options();
-    print_client_status(client);
     client->bind_socket();
-    print_client_status(client);
     client->listen_socket();
-    print_client_status(client);
     client->accept_socket();
-    print_client_status(client);
 
     std::string message {"SERVER:: moja wiadomosc powitalna"};
     send(client->get_new_socket(), message.c_str(), message.length(), 0);
     
-    std::thread receive_thread(&Manager::handle_receiver,this, client->get_new_socket());
+    std::thread receive_thread(&Manager::handle_receiver,this, client);
     std::scoped_lock sl(mutex);
     client->set_receive_thread(receive_thread);
     
-    clients.push_back(std::move(client));
+    clients.push_back(client);
 
     std::string message2 {"SERVER:: DRUGA"};
     send(clients[0]->get_new_socket(), message2.c_str(), message2.length(), 0);
@@ -43,7 +37,7 @@ void Manager::close_sockets()
     }
 }
 
-void Manager::print_client_status(std::unique_ptr<Socket>& client)
+void Manager::print_client_status(std::shared_ptr<Socket>& client)
 {
     auto status = client->get_status();
     std::cout << "Status = ";
@@ -68,6 +62,17 @@ void Manager::print_client_status(std::unique_ptr<Socket>& client)
     std::cout << std::endl;
 }
 
+void Manager::print_counters()
+{
+    static int previous = 0;
+    for(auto i = 0; i < clients.size(); ++i){
+        std::cout << "Klient " << i << ": " << clients[i]->get_received_messages_counter() 
+            << "\troznica: " << previous - clients[i]->get_received_messages_counter() << std::endl;
+        
+        previous = clients[i]->get_received_messages_counter();
+    }
+}
+
 void Manager::check_connections()
 {
     int counter = 0;
@@ -78,21 +83,24 @@ void Manager::check_connections()
         }
     }
 
-    std::cout << "Counter = " << counter << " All clients = " << all_clients << std::endl;
     if(counter == all_clients){
         add_new_client();
     }
 }
 
-void Manager::handle_receiver(int socket)
+void Manager::handle_receiver(std::shared_ptr<Socket> client)
 {
     char buffer[buffer_size];
     while (true) {
         memset(buffer, 0, buffer_size);
-        //std::scoped_lock sl(mutex); TODO
-        int valread = read(socket, buffer, buffer_size);
+        
+        int valread = read(client->get_new_socket(), buffer, buffer_size);
         if (valread > 0) {
-            std::cout << "Klient: " << buffer << std::endl;
+            //std::cout << "Klient: " << buffer << std::endl;
+
+            std::scoped_lock sl(mutex);
+            int value = client->get_received_messages_counter() + 1;
+            client->set_received_messages_counter(value);
         }
     }
 }
