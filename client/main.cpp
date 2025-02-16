@@ -44,15 +44,19 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    std::cout << "Połączono z serwerem na porcie " << PORT << std::endl;
+    std::cout << "Połączono z serwerem na porcie " << atoi(argv[1]) << std::endl;
 
     std::thread receiveThread(handleReceive, sock);
 
     while (true) {
-        std::string message;
-        std::cout << "Klient: ";
-        std::getline(std::cin, message);
+        std::string port = argv[1];
+        std::string message = "Port = " + port; 
+        //std::string message;
+        //std::cout << "Klient: ";
+        //std::getline(std::cin, message);
         send(sock, message.c_str(), message.length(), 0);
+
+        usleep(100000); //100ms
     }
 
     receiveThread.join();
